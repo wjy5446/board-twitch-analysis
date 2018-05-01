@@ -1,4 +1,5 @@
 from util import db
+from util import viewship
 
 from flask import Flask, render_template, request, jsonify
 import logging
@@ -39,7 +40,7 @@ def index():
     return render_template("index.html")
 
 # api
-@app.route("/recommand/", methods = ["POST"])
+@app.route("/info/", methods = ["POST"])
 def recommand_streamer():
     model = models["stream2vec"]
 
@@ -71,6 +72,22 @@ def recommand_streamer():
                 "followers": channel["followers"],
             }
 
+            # get main streamer recent viewship
+            df_viewship = viewship.get_viewship(stream_id_input, stream_name_input)
+            best_game = viewship.get_best_game_by_viewer(df_viewship)
+            best_hour = viewship.get_best_hour_by_viewer(df_viewship)
+
+            viewer_value = list(df_viewship.viewer.astype("str").values)
+            time_value = list(((df_viewship.time - pd.datetime(1970,1,1)).dt.total_seconds() * 1000).astype("str").values)
+
+            data_viewship = {
+                "viewer" : viewer_value,
+                "time" : time_value,
+                "best_game" : best_game,
+                "best_hour" : best_hour,
+            }
+
+
             # get similar_streamers
             for idx in range(len(most_similar_streamers)):
                 try:
@@ -92,8 +109,10 @@ def recommand_streamer():
             result = {
                 "status" : 200,
                 "result_main" : streamer_info,
-                "result_similar" : list(most_similar_streamers_info)
+                "result_similar" : list(most_similar_streamers_info),
+                "viewship" : data_viewship
             }
+
         else:
             result = {
                     "status" : 202,
