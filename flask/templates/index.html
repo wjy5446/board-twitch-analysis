@@ -1,0 +1,162 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Twitch Streamer Dashboard</title>
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!-- 합쳐지고 최소화된 최신 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <!-- 부가적인 테마 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+    <style media = "screen">
+      .contents{
+        margin-top : 60px;
+      }
+    </style>
+</head>
+
+<body>
+  <nav class="navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <div class="navbar-brand">Twitch Streamer Dashboard</div>
+        <button type="button" class="navbar-toggle collapse" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+
+      <div id = "navbar" class = "navbar-collapse collapse">
+          <form class="navbar-form navbar-right in", role = "search">
+            <div class="input-group">
+              <input type="text" class = "form-control" id = "streamer-id" placeholder="Input Twitch Streamer ID">
+              <span class = "input-group-btn"><button type = "button" class = "btn btn-default" id = "submit">Submit</button></span>
+            </div>
+          </form>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid contents">
+    <div class="row">
+      <div class="col-sm-10 col-md-10 main">
+        <div class = 'row' id = 'main-streamer'>
+        </div>
+        <!-- similar_streamers -->
+        <div class='container'>
+          <div class='row' id="streamer-list"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+  <!-- Bootstrap core JavaScript
+  ================================================== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <!-- JavaScript -->
+  <script type="text/javascript">
+    $(document).ready(function(){
+
+      $("#submit").on("click", function(){
+        var streamer_id = $("#streamer-id").val();
+        req_id = {
+          streamer_id : streamer_id
+        };
+
+        $.post('/recommand/', req_id).done(function(res_similar){
+          if (res_similar.status == 202){
+            alert("streamer id를 다시 입력해주세요 !!");
+          }
+          else{
+            // print main streamer-id
+            $('#main-streamer').empty();
+            var main_nickname = res_similar.result_main["display_name"];
+            var main_img = res_similar.result_main["logo"];
+            var main_partner = res_similar.result_main["partner"];
+            var main_follower = res_similar.result_main["followers"];
+            var main_views = res_similar.result_main["views"];
+            var main_link = res_similar.result_main["url"];
+
+            var main_game = res_similar.result_main["game"];
+            var main_status = res_similar.result_main["status"];
+
+            var main_lang = res_similar.result_main["language"];
+            var main_mature = res_similar.result_main["mature"];
+            var main_created = res_similar.result_main["created_at"];
+            var main_updated = res_similar.result_main["updated_at"];
+
+            var tag_main_img = '<td rowspan = "7" style="text-align: center; vertical-align: middle;"> <img src = "' + main_img + '" alt = "streamer logo" class = "img-responsive img-circle"></td>'
+            var tag_main_name =  '<td colspan = "4"> <h4 class = "text-center">' + main_nickname + '</h4> </td>';
+            var tag_main_partner = `<td>` + main_partner + `</td>`;
+            var tag_main_follower = '<td>' + main_follower + '</td>';
+            var tag_main_view = '<td>' + main_views + '</td>';
+            var tag_main_link = `<td><a href="` + main_link + `"> ` + main_nickname + 'link </a></td>';
+
+            var tag_main_game = `<td colspan = "3">` + main_game + '</td>';
+            var tag_main_status = `<td colspan="3">` + main_status + '</td>';
+
+            var tag_main_lang = `<td>` + main_lang + '</td>';
+            var tag_main_mature = `<td>` + main_mature + '</td>';
+            var tag_main_created = `<td>` + main_created + `</td>`;
+            var tag_main_updated = `<td>` + main_updated + `</td>`;
+
+            var tag_main = '<table class = "table table-condensed" align	= "left">' + '<tr>' + tag_main_img + tag_main_name + '</tr>'
+            + '<tr>' + '<td></td>' + '<td><strong>partner</strong></td>' + tag_main_partner + '<td><strong>lang</strong></td>' + tag_main_lang + '</tr>'
+            + '<tr>' + '<td></td>' + '<td><strong>followers</strong></td>' + tag_main_follower + '<td><strong>mature</strong></td>' + tag_main_mature + '</tr>'
+            + '<tr>' + '<td></td>' + '<td><strong>views</strong></td>' + tag_main_view + '<td><strong>create</strong></td>' + tag_main_created + '</tr>'
+            + '<tr>' + '<td></td>' + '<td><strong>link</strong></td>' + tag_main_link + '<td><strong>update</strong></td>' + tag_main_updated + '</tr>'
+            + '<tr>' + '<td></td>' + '<td> <strong>game</strong></td>' + tag_main_game + '</tr>'
+            + '<tr>' + '<td></td>' + '<td> <strong>status</strong></td>' + tag_main_status + '</tr>'
+            + '</table>';
+
+            $('#main-streamer').append(tag_main);
+
+            // print streamer list
+            $("#streamer-list").empty();
+            $('#streamer-list').append('<h2 class="sub-header" >Similar Streamer</h2>');
+
+            for(var i =0; i< res_similar.result_similar.length; i++){
+                var nickname = res_similar.result_similar[i]["display_name"];
+                var name = res_similar.result_similar[i]["name"];
+                var image_url = res_similar.result_similar[i]["image"];
+                var followers = res_similar.result_similar[i]["followers"];
+                var views = res_similar.result_similar[i]["views"];
+                var link = res_similar.result_similar[i]["link"];
+                var similar_rate = res_similar.result_similar[i]["similar_rate"];
+
+                var tag_name = '<h4 class = "text-center">' + nickname + '</h4>';
+                var tag_img = '<img src = "' + image_url +  '" alt = "streamer logo" class = "img-responsive img-circle">';
+                var tag_progress = '<div class="progress"> <div class="progress-bar" role="progressbar" aria-valuenow="'+ String(similar_rate) + '" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">'+ String(similar_rate) + '% </div></div>';
+                var tag_followers = '<td><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Followers : ' + String(followers) + '</td>';
+                var tag_views = '<td><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Veiws : ' + views + '</td>';
+                var tag_link = `<td><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span><a href="` + link + `"> ` + name +` link </a></td>`;
+
+                var tag_table = '<table>' + tag_progress + '<tr>' + tag_followers + '</tr>' + '<tr>' + tag_views + '</tr>' + '<tr>' + tag_link + '</tr>' + '</table>';
+                var tag = '<div class = "thumbnail col-sm-3 col-md-2" style="text-align:center;">' + tag_img + tag_name + tag_table +'</div>';
+
+                $('#streamer-list').append(tag);
+
+            }//end of for
+          }//end dof else
+        });
+      });
+    });
+  </script>
+</body>
+</html>
