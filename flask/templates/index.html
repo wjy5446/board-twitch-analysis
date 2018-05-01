@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
     <!-- 부가적인 테마 -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
-
+    <link href="static/css/loading.css" rel="stylesheet">
     <style media = "screen">
       .contents{
         margin-top : 60px;
@@ -53,15 +53,11 @@
         <!-- stream-chart -->
         <div id = 'stream-chart'></div>
 
-
         <div class="row">
           <div id = "chartView" class = "col-sm-12 col-md-12"style="height: 300px"></div>
           <div id = "chartBestGame" class = "col-sm-6 col-md-6" style='min-width: 300px; max-width: 600px; height: 300px; margin: 0 auto'></div>
           <div id = "chartBestTime" class = "col-sm-6 col-md-6"style='min-width: 300px; max-width: 600px; height: 300px; margin: 0 auto'></div>
         </div>
-
-
-
 
         <!-- similar_streamers -->
         <div class='container'>
@@ -85,13 +81,17 @@
   <script src="https://code.highcharts.com/highcharts.js"></script>
   <script src="https://code.highcharts.com/modules/exporting.js"></script>
   <script src="https://code.highcharts.com/modules/export-data.js"></script>
-
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="static/js/loading.js"></script>
 
 
   <!-- JavaScript -->
   <script type="text/javascript">
     $(document).ready(function(){
       $("#submit").on("click", function(){
+        //loader
+        $('body').loading();
+
         var streamer_id = $("#streamer-id").val();
         req_id = {
           streamer_id : streamer_id
@@ -200,6 +200,7 @@
 
                 $('#streamer-list').append(tag);
 
+                $('body').loading('stop');
             }//end of for
           }//end dof else
         });
