@@ -47,9 +47,22 @@
 
   <div class="container-fluid contents">
     <div class="row">
-      <div class="col-sm-10 col-md-10 main">
-        <div class = 'row' id = 'main-streamer'>
+      <div class="col-sm-12 col-md-12 main">
+        <!-- main-streamer-info -->
+        <div class = 'row' id = 'main-streamer'></div>
+        <!-- stream-chart -->
+        <div id = 'stream-chart'></div>
+
+
+        <div class="row">
+          <div id = "chartView" class = "col-sm-12 col-md-12"style="height: 300px"></div>
+          <div id = "chartBestGame" class = "col-sm-6 col-md-6" style='min-width: 300px; max-width: 600px; height: 300px; margin: 0 auto'></div>
+          <div id = "chartBestTime" class = "col-sm-6 col-md-6"style='min-width: 300px; max-width: 600px; height: 300px; margin: 0 auto'></div>
         </div>
+
+
+
+
         <!-- similar_streamers -->
         <div class='container'>
           <div class='row' id="streamer-list"></div>
@@ -68,18 +81,23 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+
 
   <!-- JavaScript -->
   <script type="text/javascript">
     $(document).ready(function(){
-
       $("#submit").on("click", function(){
         var streamer_id = $("#streamer-id").val();
         req_id = {
           streamer_id : streamer_id
         };
 
-        $.post('/recommand/', req_id).done(function(res_similar){
+        $.post('/info/', req_id).done(function(res_similar){
           if (res_similar.status == 202){
             alert("streamer id를 다시 입력해주세요 !!");
           }
@@ -127,6 +145,36 @@
 
             $('#main-streamer').append(tag_main);
 
+            // print line chart
+            $("#stream-chart").empty();
+            $('#stream-chart').append('<h2 class="sub-header" >Recent view analysis</h2>');
+            // draw vbar chart for best game
+            var result_best_game = []
+            for(var i =0; i<5; i++){
+              result_best_game.push({
+                  name:res_similar.viewship["best_game"][i][0],
+                  y:res_similar.viewship["best_game"][i][1]
+              })
+            }
+            drawBarChart("chartBestGame", "Best games", result_best_game)
+
+            // draw vbar chart for best timeout
+            var result_best_time = []
+            for(var i =0; i<5; i++){
+              result_best_time.push({
+                  name:res_similar.viewship["best_hour"][i][0],
+                  y:res_similar.viewship["best_hour"][i][1]
+              })
+            }
+            drawBarChart("chartBestTime", "Best hours", result_best_time)
+
+            // draw view chartView
+            var result_view = []
+            for(var i =0; i<res_similar.viewship["viewer"].length; i++){
+              result_view.push([Number(res_similar.viewship["time"][i]), Number(res_similar.viewship["viewer"][i])])
+            }
+            drawSeriesChart("chartView", result_view)
+
             // print streamer list
             $("#streamer-list").empty();
             $('#streamer-list').append('<h2 class="sub-header" >Similar Streamer</h2>');
@@ -156,6 +204,35 @@
           }//end dof else
         });
       });
+
+      function drawBarChart(name, title, result_data){
+          Highcharts.chart(name, {
+              chart: {type: 'bar'},
+              title: {text: title},
+              xAxis: {categories: [result_data[0]["name"], result_data[1]["name"], result_data[2]["name"], result_data[3]["name"], result_data[4]["name"]],},
+              yAxis: {min: 0,title: {text: 'viwer (average)', align: 'high'},},
+              plotOptions: {bar: {dataLabels: {enabled: true}}},
+              series: [{
+                  name : "viewer",
+                  data: [{color : '#486BFF', y : Math.round(Number(result_data[0]["y"]))},
+                  {color : '#3F87DE', y : Math.round(Number(result_data[1]["y"]))},
+                  {color : '#52C7F5', y : Math.round(Number(result_data[2]["y"]))},
+                  {color : '#3FDBDE', y : Math.round(Number(result_data[3]["y"]))},
+                  {color : '#47FBCC', y : Math.round(Number(result_data[4]["y"]))}]
+              }]
+          });
+      }
+
+      function drawSeriesChart(name, data){
+          Highcharts.chart(name, {
+          chart: {zoomType: 'x'},
+          title: {text: "Recent viewer on the week"},
+          xAxis: {type: 'datetime'},
+          yAxis: {title: {text: 'viewer'}},
+          plotOptions: {area: {marker: {radius: 2}, lineWidth: 1, states: {hover: {lineWidth: 1}},threshold: null}},
+          series: [{name: 'viwer', data: data}]
+          });
+      }
     });
   </script>
 </body>
