@@ -3,8 +3,6 @@ from util import viewship
 
 from flask import Flask, render_template, request, jsonify
 import logging
-import sqlalchemy
-from sqlalchemy.ext.declarative import declarative_base
 import pickle
 from twitch import TwitchClient
 
