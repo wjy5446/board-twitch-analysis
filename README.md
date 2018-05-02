@@ -1,3 +1,49 @@
-# Analysis Twitch-Board
+# twitch-stream-analysis
 
-목적 : 트위치 스트리머 게시판 트게더를 분석하여 스트리머의 게시판 순위 비결과 트위치 유형 분석 및 추천 시스템을 개발.
+> This is a web-site that analysis the stream in twitch
+>
+> - Draw the dashboard for viewship using Highchart 
+> - Recommend the similar streamer using word2vec.
+
+**Web-site address** [link](http://twitch-stream-analysis.ml) 
+
+
+
+**(1) Main Streamer info**
+
+![webpage text](https://github.com/wjy5446/board-twitch-analysis/blob/master/img/main.PNG)
+
+
+
+**(2) viewship**
+
+![webpage text](https://github.com/wjy5446/board-twitch-analysis/blob/master/img/viewship.PNG)
+
+
+
+**(3) Recommand streamer**
+
+![webpage text](https://github.com/wjy5446/board-twitch-analysis/blob/master/img/recommand_streamer.PNG)
+
+
+
+## 1. Code
+
+##### skill
+
+> - numpy, pandas, gensim
+> - web : flask, bootstrap, MySQLdb, hghchart
+
+##### Code
+
+>flask : flask
+>
+>data : csv
+>
+>model : model(word2vec) 
+>
+>flask/util : function
+>
+>- db.py : Load the stream-info data from MysqlDB 
+>- viewship.py : Crawling the data form twitch-metrics
+>
